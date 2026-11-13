@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#3a050a">
+  <title>ИПР ИИ-5 · согласование требований</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-mark">ИИ</div>
+    <div class="brand-copy"><small>АПРОБАЦИЯ СЕРВИСА</small><h1>ИПР ИИ-5 · согласование требований</h1></div>
+    <div class="top-actions">
+      <button id="exportCsv">Скачать CSV</button>
+      <button id="exportJson">Выгрузить проект</button>
+      <label class="button">Загрузить проект<input id="importJson" type="file" accept="application/json" hidden></label>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="stats"><div><b id="approvedCount">0</b><span>Одобрено</span></div><div><b id="rejectedCount">0</b><span>Замечания</span></div><div><b id="pendingCount">22</b><span>Ожидают</span></div></div>
+      <input id="search" class="search" placeholder="Найти требование">
+      <div class="filters" id="filters">
+        <button data-filter="all" class="active">Все</button><button data-filter="pending">Не рассмотрено</button><button data-filter="approved">Одобрено</button><button data-filter="rejected">Не одобрено</button>
+      </div>
+      <nav id="requirementsList" aria-label="Требования"></nav>
+    </aside>
+
+    <article class="card">
+      <section class="title-panel">
+        <div class="number" id="requirementNumber">01</div>
+        <div class="title-copy"><small>ТРЕБОВАНИЕ ИПР ИИ-5</small><h2 id="requirementTitle"></h2></div>
+        <img id="titleMotif" class="title-motif" alt="">
+      </section>
+
+      <div class="content-grid">
+        <section class="text-panel">
+          <div class="info"><small>ПРОВЕРКА</small><p id="requirementCheck"></p></div>
+          <div class="info"><small>ОЖИДАЕМЫЙ РЕЗУЛЬТАТ</small><p id="requirementExpected"></p></div>
+          <div class="info"><small>ПОДТВЕРЖДЕНИЕ</small><p id="requirementEvidence"></p></div>
+          <div class="comment-box"><label for="comment">КОММЕНТАРИЙ СОГЛАСУЮЩЕГО</label><textarea id="comment" rows="6" placeholder="Что нужно исправить или уточнить?"></textarea><span>Сохраняется автоматически в этом браузере</span></div>
+        </section>
+
+        <section class="evidence-panel">
+          <div class="evidence-heading"><div><b>СКРИНШОТ СЕРВИСА</b><small>PNG, JPG или WebP</small></div><button id="deleteImage" class="danger" hidden>Удалить</button></div>
+          <div id="dropzone" class="dropzone" tabindex="0">
+            <img id="screenshot" class="screenshot" alt="Подтверждающий скриншот" hidden>
+            <div id="emptyScreenshot" class="empty-screenshot"><div class="medallion"><img id="emptyMotif" alt=""></div><h3>Добавьте подтверждающий скриншот</h3><p>Перетащите изображение сюда, выберите файл или вставьте картинку из буфера обмена.</p></div>
+          </div>
+          <input id="imageInput" type="file" accept="image/*" hidden>
+          <div class="upload-actions"><button id="chooseImage">Выбрать файл</button><button id="pasteImage">Вставить из буфера</button></div>
+          <div class="decisions"><button id="approve" class="approve"><span>✓</span><div><b>Одобрено</b><small>Требование принято</small></div></button><button id="reject" class="reject"><span>×</span><div><b>Не одобрено</b><small>Есть замечания</small></div></button></div>
+        </section>
+      </div>
+
+      <footer><button id="previous">← Предыдущее</button><b id="progress">1 / 22</b><button id="next">Следующее →</button></footer>
+    </article>
+  </main>
+  <div id="toast" class="toast" hidden></div>
+  <div id="confetti" class="confetti" aria-hidden="true"></div>
+  <script src="app.js"></script>
+</body>
+</html>
