@@ -31,6 +31,11 @@
 .dropzone:focus-visible{box-shadow:0 0 0 3px #edc66e88}
 .dropzone.has-image{flex:none;min-height:0}
 .dropzone.has-image .screenshot{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain}
+.natalia-comment{margin-top:16px;padding:16px;border:1px solid #edc66e59;border-radius:18px;background:#3a050a8c}
+.natalia-comment label{display:block;margin-bottom:10px;color:#edc66e;font-size:13px;font-weight:900;letter-spacing:.08em}
+.natalia-comment textarea{width:100%;padding:12px;border:1px solid #d8a84e45;border-radius:12px;background:#260205a6;color:#fff8e9;font:inherit;font-size:14px;line-height:1.55;resize:vertical;outline:none}
+.natalia-comment textarea:focus{border-color:#edc66e}
+.natalia-comment small{display:block;margin-top:8px;color:#d6bba099;font-size:11px}
 @media(max-width:850px){.welcome-dragon{display:none}.welcome-lantern{height:170px;opacity:.2}}
 @media(max-width:520px){.welcome-screen{padding:18px 10px}.welcome-card{padding:34px 20px;border-radius:24px}.welcome-copy span{white-space:normal}}
 @media(prefers-reduced-motion:reduce){.welcome-screen,#startReview{transition:none}}

@@ -71,7 +71,7 @@ const dbPromise = new Promise((resolve, reject) => {
 function loadReviews() {
   try { return JSON.parse(localStorage.getItem(stateKey)) || {}; } catch { return {}; }
 }
-function reviewFor(id) { return reviews[id] || { status: "pending", comment: "", screenshotName: "" }; }
+function reviewFor(id) { return reviews[id] || { status: "pending", comment: "", nataliaComment: "", screenshotName: "" }; }
 function saveReviews() { localStorage.setItem(stateKey, JSON.stringify(reviews)); }
 function setReview(id, patch) { reviews[id] = { ...reviewFor(id), ...patch, updatedAt: new Date().toISOString() }; saveReviews(); renderCounts(); renderList(); }
 function motif(symbol) { return `assets/motifs/${symbol}.png`; }
@@ -137,6 +137,7 @@ function render() {
   $("titleMotif").src = motif(item.symbol);
   $("emptyMotif").src = motif(item.symbol);
   $("comment").value = review.comment || "";
+  $("nataliaComment").value = review.nataliaComment || "";
   $("approve").classList.toggle("active", review.status === "approved");
   $("reject").classList.toggle("active", review.status === "rejected");
   $("progress").textContent = `${activeId} / ${requirements.length}`;
@@ -176,6 +177,7 @@ function dataUrlToBlob(dataUrl) { const [meta, data] = dataUrl.split(","); const
 $("search").oninput = event => { query = event.target.value.trim().toLowerCase(); renderList(); };
 $("filters").onclick = event => { const button = event.target.closest("button"); if (!button) return; filter = button.dataset.filter; [...$("filters").children].forEach(el => el.classList.toggle("active", el === button)); renderList(); };
 $("comment").oninput = event => setReview(activeId, { comment: event.target.value });
+$("nataliaComment").oninput = event => setReview(activeId, { nataliaComment: event.target.value });
 $("approve").onclick = () => { setReview(activeId, { status: "approved" }); burstCelebration(activeId); render(); toast("Требование одобрено"); };
 $("reject").onclick = () => { setReview(activeId, { status: "rejected" }); render(); toast("Добавлено замечание"); };
 $("previous").onclick = () => { if (activeId > 1) { activeId--; render(); } };
@@ -191,7 +193,7 @@ $("startReview").onclick = () => { $("welcomeScreen").classList.add("closed"); s
 
 $("exportCsv").onclick = () => {
   const esc = value => `"${String(value || "").replaceAll('"', '""')}"`;
-  const csvRows = [["№", "Требование", "Статус", "Комментарий", "Скриншот"], ...requirements.map(item => { const review = reviewFor(item.id); return [item.id, item.title, statusLabels[review.status], review.comment, review.screenshotName]; })];
+  const csvRows = [["№", "Требование", "Статус", "Комментарий согласующего", "Комментарий Натальи", "Скриншот"], ...requirements.map(item => { const review = reviewFor(item.id); return [item.id, item.title, statusLabels[review.status], review.comment, review.nataliaComment, review.screenshotName]; })];
   download("согласование-ипр-ии5.csv", new Blob(["\uFEFF" + csvRows.map(row => row.map(esc).join(";")).join("\n")], { type: "text/csv;charset=utf-8" }));
 };
 
