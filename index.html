@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#3a050a">
   <title>ИПР ИИ-5 · согласование требований</title>
-  <link rel="stylesheet" href="app.css">
-  <link rel="stylesheet" href="celebrations.css">
+  <link rel="stylesheet" href="app.css?v=4">
+  <link rel="stylesheet" href="celebrations.css?v=4">
 </head>
 <body>
   <div id="welcomeScreen" class="welcome-screen" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
@@ -21,7 +21,12 @@
         <p>Вы можете оставить свои комментарии, одобрить или не одобрить пункты из ТЗ. Выгрузить результат в виде CSV, чтобы посмотреть на результат.</p>
         <p>Я подумала, что так будет легче, чем смотреть получасовое видео с тестированием <span>(но видео тоже прилагается))</span></p>
       </div>
-      <button id="startReview" autofocus>Перейти к проверке <b>→</b></button>
+      <div class="access-form">
+        <label>Ваше имя<input id="reviewerName" autocomplete="name" placeholder="Сергей Александрович"></label>
+        <label>Код доступа<input id="accessCode" type="password" autocomplete="current-password" placeholder="Введите код"></label>
+      </div>
+      <p id="accessError" class="access-error" hidden></p>
+      <button id="startReview" autofocus>Войти к проверке <b>→</b></button>
     </section>
   </div>
   <header class="topbar">
@@ -80,6 +85,6 @@
   </main>
   <div id="toast" class="toast" hidden></div>
   <div id="confetti" class="celebration-layer" aria-hidden="true"></div>
-  <script src="app.js"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

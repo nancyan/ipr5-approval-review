@@ -53,12 +53,18 @@ const rows = [
 ];
 const requirements = rows.map((row, index) => ({ id: index + 1, title: row[0], check: row[1], expected: row[2], evidence: row[3], symbol: symbols[index % symbols.length] }));
 const stateKey = "ipr5-approval-review-v2";
+const sharedApiBase = "https://ipr5-approval-review.five1three-6615.chatgpt.site";
+const sharedMigrationKey = "ipr5-shared-migration-v1";
 const statusLabels = { pending: "Не рассмотрено", approved: "Одобрено", rejected: "Не одобрено" };
 let reviews = loadReviews();
 let activeId = 1;
 let filter = "all";
 let query = "";
 let currentImageUrl = null;
+let sharedCode = localStorage.getItem("ipr5-shared-code") || "";
+let reviewerName = localStorage.getItem("ipr5-reviewer-name") || "";
+let sharedReady = false;
+const syncTimers = new Map();
 
 const $ = id => document.getElementById(id);
 const dbPromise = new Promise((resolve, reject) => {
@@ -73,8 +79,134 @@ function loadReviews() {
 }
 function reviewFor(id) { return reviews[id] || { status: "pending", comment: "", nataliaComment: "", screenshotName: "" }; }
 function saveReviews() { localStorage.setItem(stateKey, JSON.stringify(reviews)); }
-function setReview(id, patch) { reviews[id] = { ...reviewFor(id), ...patch, updatedAt: new Date().toISOString() }; saveReviews(); renderCounts(); renderList(); }
+function setReview(id, patch) {
+  reviews[id] = { ...reviewFor(id), ...patch, updatedAt: new Date().toISOString() };
+  saveReviews(); renderCounts(); renderList();
+  if (sharedReady) scheduleReviewSync(id);
+}
 function motif(symbol) { return `assets/motifs/${symbol}.png`; }
+
+function sharedFetch(path, options = {}) {
+  const headers = new Headers(options.headers || {});
+  headers.set("X-Review-Code", sharedCode);
+  headers.set("X-Reviewer-Name", encodeURIComponent(reviewerName));
+  return fetch(sharedApiBase + path, { ...options, headers });
+}
+
+function scheduleReviewSync(id) {
+  clearTimeout(syncTimers.get(id));
+  syncTimers.set(id, setTimeout(() => { void syncReview(id); }, 500));
+}
+
+async function syncReview(id) {
+  const review = reviewFor(id);
+  try {
+    const response = await sharedFetch("/api/shared/reviews", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        requirementId: id,
+        status: review.status,
+        comment: review.comment || "",
+        nataliaComment: review.nataliaComment || "",
+      }),
+    });
+    if (!response.ok) throw new Error((await response.json()).error || "Не удалось сохранить");
+    reviews[id] = { ...review, ...(await response.json()) };
+    saveReviews();
+  } catch (error) {
+    toast(error.message || "Нет связи с общим хранилищем");
+  }
+}
+
+async function uploadSharedImage(id, blob, filename) {
+  const form = new FormData();
+  form.append("requirementId", String(id));
+  form.append("file", blob, filename || `screenshot-${id}.png`);
+  const response = await sharedFetch("/api/shared/upload", { method: "POST", body: form });
+  if (!response.ok) throw new Error((await response.json()).error || "Не удалось загрузить скриншот");
+  reviews[id] = { ...reviewFor(id), ...(await response.json()) };
+  saveReviews();
+}
+
+async function refreshSharedReviews() {
+  const response = await sharedFetch("/api/shared/reviews");
+  if (!response.ok) throw new Error((await response.json()).error || "Не удалось открыть общие данные");
+  const rows = await response.json();
+  for (const row of rows) {
+    if (reviewFor(row.requirementId).screenshotKey !== row.screenshotKey) {
+      await imageStore("delete", row.requirementId);
+    }
+  }
+  reviews = Object.fromEntries(rows.map(row => [row.requirementId, row]));
+  saveReviews();
+}
+
+async function migrateLocalData(remoteRows) {
+  if (localStorage.getItem(sharedMigrationKey)) return;
+  const remoteById = Object.fromEntries(remoteRows.map(row => [row.requirementId, row]));
+  for (const item of requirements) {
+    const local = reviews[item.id];
+    const remote = remoteById[item.id];
+    const localTime = local?.updatedAt ? new Date(local.updatedAt).getTime() : 0;
+    const remoteTime = remote?.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
+    const hasLocalText = local && (local.status && local.status !== "pending" || local.comment || local.nataliaComment);
+    if (hasLocalText && (!remote || localTime >= remoteTime)) {
+      const response = await sharedFetch("/api/shared/reviews", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requirementId: item.id,
+          status: local.status || "pending",
+          comment: local.comment || "",
+          nataliaComment: local.nataliaComment || "",
+        }),
+      });
+      if (!response.ok) throw new Error((await response.json()).error || "Не удалось перенести комментарии");
+    }
+    const blob = await imageStore("get", item.id);
+    if (blob && (!remote?.screenshotKey || localTime >= remoteTime)) {
+      await uploadSharedImage(item.id, blob, local?.screenshotName);
+    }
+  }
+  localStorage.setItem(sharedMigrationKey, "1");
+}
+
+async function connectShared() {
+  const name = $("reviewerName").value.trim();
+  const code = $("accessCode").value.trim();
+  const error = $("accessError");
+  if (!name || !code) {
+    error.textContent = "Введите имя и код доступа.";
+    error.hidden = false;
+    return;
+  }
+  reviewerName = name;
+  sharedCode = code;
+  $("startReview").disabled = true;
+  $("startReview").firstChild.textContent = "Подключаю… ";
+  error.hidden = true;
+  try {
+    const response = await sharedFetch("/api/shared/reviews");
+    if (!response.ok) throw new Error((await response.json()).error || "Не удалось подключиться");
+    const remoteRows = await response.json();
+    await migrateLocalData(remoteRows);
+    sharedReady = true;
+    localStorage.setItem("ipr5-shared-code", sharedCode);
+    localStorage.setItem("ipr5-reviewer-name", reviewerName);
+    await refreshSharedReviews();
+    $("welcomeScreen").classList.add("closed");
+    setTimeout(() => $("welcomeScreen").remove(), 350);
+    render();
+    toast("Общее хранилище подключено");
+  } catch (caught) {
+    error.textContent = caught.message || "Не удалось подключиться";
+    error.hidden = false;
+  } finally {
+    $("startReview").disabled = false;
+    $("startReview").firstChild.textContent = "Войти к проверке ";
+  }
+}
 
 async function imageStore(mode, id, value) {
   const db = await dbPromise;
@@ -114,7 +246,14 @@ function renderList() {
 async function renderImage() {
   if (currentImageUrl) URL.revokeObjectURL(currentImageUrl);
   currentImageUrl = null;
-  const blob = await imageStore("get", activeId);
+  let blob = await imageStore("get", activeId);
+  if (!blob && sharedReady && reviewFor(activeId).screenshotKey) {
+    const response = await sharedFetch(`/api/shared/screenshots/${activeId}`);
+    if (response.ok) {
+      blob = await response.blob();
+      await imageStore("put", activeId, blob);
+    }
+  }
   const image = $("screenshot");
   const empty = $("emptyScreenshot");
   const dropzone = $("dropzone");
@@ -167,6 +306,10 @@ async function acceptImage(file) {
   if (!file || !file.type.startsWith("image/")) return toast("Выберите изображение");
   await imageStore("put", activeId, file);
   setReview(activeId, { screenshotName: file.name || `screenshot-${activeId}.png` });
+  if (sharedReady) {
+    try { await uploadSharedImage(activeId, file, file.name); }
+    catch (error) { return toast(error.message || "Не удалось загрузить скриншот"); }
+  }
   await renderImage(); toast("Скриншот добавлен");
 }
 
@@ -183,13 +326,25 @@ $("reject").onclick = () => { setReview(activeId, { status: "rejected" }); rende
 $("previous").onclick = () => { if (activeId > 1) { activeId--; render(); } };
 $("next").onclick = () => { if (activeId < requirements.length) { activeId++; render(); } };
 $("imageInput").onchange = event => { void acceptImage(event.target.files[0]); event.target.value = ""; };
-$("deleteImage").onclick = async () => { await imageStore("delete", activeId); setReview(activeId, { screenshotName: "" }); await renderImage(); toast("Скриншот удалён"); };
+$("deleteImage").onclick = async event => {
+  event.stopPropagation();
+  if (sharedReady) {
+    const response = await sharedFetch(`/api/shared/upload?requirementId=${activeId}`, { method: "DELETE" });
+    if (!response.ok) return toast((await response.json()).error || "Не удалось удалить скриншот");
+  }
+  await imageStore("delete", activeId);
+  reviews[activeId] = { ...reviewFor(activeId), screenshotKey: null, screenshotName: "" };
+  saveReviews();
+  await renderImage(); toast("Скриншот удалён");
+};
 $("dropzone").ondragover = event => { event.preventDefault(); event.currentTarget.classList.add("drag"); };
 $("dropzone").ondragleave = event => event.currentTarget.classList.remove("drag");
 $("dropzone").ondrop = event => { event.preventDefault(); event.currentTarget.classList.remove("drag"); void acceptImage(event.dataTransfer.files[0]); };
 $("dropzone").onclick = () => $("imageInput").click();
 $("dropzone").onkeydown = event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); $("imageInput").click(); } };
-$("startReview").onclick = () => { $("welcomeScreen").classList.add("closed"); setTimeout(() => $("welcomeScreen").remove(), 350); };
+$("reviewerName").value = reviewerName;
+$("accessCode").value = sharedCode;
+$("startReview").onclick = () => { void connectShared(); };
 
 $("exportCsv").onclick = () => {
   const esc = value => `"${String(value || "").replaceAll('"', '""')}"`;

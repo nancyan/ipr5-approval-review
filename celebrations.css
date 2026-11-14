@@ -22,6 +22,11 @@
 .welcome-mark{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 20px;border:2px solid #edc66e;border-radius:50%;background:#8c1d24;font-size:20px;font-weight:900;box-shadow:0 0 0 7px #edc66e1a}
 .welcome-copy{max-width:650px;margin:24px auto 0;color:#f8e4c9;font-size:clamp(16px,2vw,19px);line-height:1.7}
 .welcome-copy p{margin:12px 0}.welcome-copy span{white-space:nowrap}
+.access-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:610px;margin:24px auto 0;text-align:left}
+.access-form label{color:#edc66e;font-size:12px;font-weight:900;letter-spacing:.08em}
+.access-form input{display:block;width:100%;margin-top:7px;padding:12px 14px;border:1px solid #edc66e70;border-radius:12px;background:#260205b8;color:#fff8e9;font:inherit;font-size:15px;outline:none}
+.access-form input:focus{border-color:#ffe09a;box-shadow:0 0 0 3px #edc66e24}
+.access-error{margin:12px 0 -8px;color:#ffb1a5;font-size:13px;font-weight:800}
 #startReview{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px;margin-top:24px;padding:12px 30px;border:1px solid #ffe29a;border-radius:999px;background:#edc66e;color:#4b070d;font-weight:900;box-shadow:0 12px 30px #0006;transition:transform .2s ease,background .2s ease}
 #startReview:hover{transform:translateY(-2px);background:#ffe09a}
 .welcome-dragon,.welcome-lantern{position:absolute;pointer-events:none;object-fit:contain}
@@ -37,6 +42,6 @@
 .natalia-comment textarea:focus{border-color:#edc66e}
 .natalia-comment small{display:block;margin-top:8px;color:#d6bba099;font-size:11px}
 @media(max-width:850px){.welcome-dragon{display:none}.welcome-lantern{height:170px;opacity:.2}}
-@media(max-width:520px){.welcome-screen{padding:18px 10px}.welcome-card{padding:34px 20px;border-radius:24px}.welcome-copy span{white-space:normal}}
+@media(max-width:520px){.welcome-screen{padding:18px 10px}.welcome-card{padding:34px 20px;border-radius:24px}.welcome-copy span{white-space:normal}.access-form{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.welcome-screen,#startReview{transition:none}}
 @media print{.welcome-screen{display:none!important}}
