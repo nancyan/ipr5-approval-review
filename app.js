@@ -117,11 +117,12 @@ async function renderImage() {
   const blob = await imageStore("get", activeId);
   const image = $("screenshot");
   const empty = $("emptyScreenshot");
+  const dropzone = $("dropzone");
   if (blob) {
     currentImageUrl = URL.createObjectURL(blob);
-    image.src = currentImageUrl; image.hidden = false; empty.hidden = true; $("deleteImage").hidden = false;
+    image.src = currentImageUrl; image.hidden = false; empty.hidden = true; dropzone.classList.add("has-image"); $("deleteImage").hidden = false;
   } else {
-    image.hidden = true; image.removeAttribute("src"); empty.hidden = false; $("deleteImage").hidden = true;
+    image.hidden = true; image.removeAttribute("src"); empty.hidden = false; dropzone.classList.remove("has-image"); $("deleteImage").hidden = true;
   }
 }
 
@@ -179,14 +180,14 @@ $("approve").onclick = () => { setReview(activeId, { status: "approved" }); burs
 $("reject").onclick = () => { setReview(activeId, { status: "rejected" }); render(); toast("Добавлено замечание"); };
 $("previous").onclick = () => { if (activeId > 1) { activeId--; render(); } };
 $("next").onclick = () => { if (activeId < requirements.length) { activeId++; render(); } };
-$("chooseImage").onclick = () => $("imageInput").click();
 $("imageInput").onchange = event => { void acceptImage(event.target.files[0]); event.target.value = ""; };
 $("deleteImage").onclick = async () => { await imageStore("delete", activeId); setReview(activeId, { screenshotName: "" }); await renderImage(); toast("Скриншот удалён"); };
-$("pasteImage").onclick = async () => { try { const items = await navigator.clipboard.read(); for (const item of items) { const type = item.types.find(value => value.startsWith("image/")); if (type) return acceptImage(new File([await item.getType(type)], `screenshot-${activeId}.png`, { type })); } toast("В буфере нет изображения"); } catch { toast("Разрешите доступ к буферу или перетащите файл"); } };
 $("dropzone").ondragover = event => { event.preventDefault(); event.currentTarget.classList.add("drag"); };
 $("dropzone").ondragleave = event => event.currentTarget.classList.remove("drag");
 $("dropzone").ondrop = event => { event.preventDefault(); event.currentTarget.classList.remove("drag"); void acceptImage(event.dataTransfer.files[0]); };
-$("dropzone").onclick = event => { if (event.target.id !== "screenshot") $("imageInput").click(); };
+$("dropzone").onclick = () => $("imageInput").click();
+$("dropzone").onkeydown = event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); $("imageInput").click(); } };
+$("startReview").onclick = () => { $("welcomeScreen").classList.add("closed"); setTimeout(() => $("welcomeScreen").remove(), 350); };
 
 $("exportCsv").onclick = () => {
   const esc = value => `"${String(value || "").replaceAll('"', '""')}"`;

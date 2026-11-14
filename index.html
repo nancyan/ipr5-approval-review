@@ -9,6 +9,21 @@
   <link rel="stylesheet" href="celebrations.css">
 </head>
 <body>
+  <div id="welcomeScreen" class="welcome-screen" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+    <img class="welcome-dragon" src="assets/motifs/dragon.png" alt="">
+    <img class="welcome-lantern" src="assets/motifs/lantern.png" alt="">
+    <section class="welcome-card">
+      <div class="welcome-mark">ИИ</div>
+      <small>ПОМОЩНИК ПРОЕКТИРОВЩИКА</small>
+      <h2 id="welcomeTitle">Здравствуйте, Сергей Александрович!</h2>
+      <div class="welcome-copy">
+        <p>Это небольшой сервис для проверки пунктов ТЗ по Помощнику проектировщика!</p>
+        <p>Вы можете оставить свои комментарии, одобрить или не одобрить пункты из ТЗ. Выгрузить результат в виде CSV, чтобы посмотреть на результат.</p>
+        <p>Я подумала, что так будет легче, чем смотреть получасовое видео с тестированием <span>(но видео тоже прилагается))</span></p>
+      </div>
+      <button id="startReview" autofocus>Перейти к проверке <b>→</b></button>
+    </section>
+  </div>
   <header class="topbar">
     <div class="brand-mark">ИИ</div>
     <div class="brand-copy"><small>АПРОБАЦИЯ СЕРВИСА</small><h1>ИПР ИИ-5 · согласование требований</h1></div>
@@ -46,12 +61,11 @@
 
         <section class="evidence-panel">
           <div class="evidence-heading"><div><b>СКРИНШОТ СЕРВИСА</b><small>PNG, JPG или WebP</small></div><button id="deleteImage" class="danger" hidden>Удалить</button></div>
-          <div id="dropzone" class="dropzone" tabindex="0">
+          <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Загрузить скриншот">
             <img id="screenshot" class="screenshot" alt="Подтверждающий скриншот" hidden>
-            <div id="emptyScreenshot" class="empty-screenshot"><div class="medallion"><img id="emptyMotif" alt=""></div><h3>Добавьте подтверждающий скриншот</h3><p>Перетащите изображение сюда, выберите файл или вставьте картинку из буфера обмена.</p></div>
+            <div id="emptyScreenshot" class="empty-screenshot"><div class="medallion"><img id="emptyMotif" alt=""></div><h3>Добавьте подтверждающий скриншот</h3><p>Нажмите на область или перетащите изображение сюда.</p></div>
           </div>
           <input id="imageInput" type="file" accept="image/*" hidden>
-          <div class="upload-actions"><button id="chooseImage">Выбрать файл</button><button id="pasteImage">Вставить из буфера</button></div>
           <div class="decisions"><button id="approve" class="approve"><span>✓</span><div><b>Одобрено</b><small>Требование принято</small></div></button><button id="reject" class="reject"><span>×</span><div><b>Не одобрено</b><small>Есть замечания</small></div></button></div>
         </section>
       </div>

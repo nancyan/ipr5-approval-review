@@ -13,3 +13,25 @@
 @keyframes celebration-burst{0%{transform:translate(-50%,-50%) scale(.25) rotate(0);opacity:0}12%{opacity:1}72%{opacity:.95}100%{transform:translate(calc(-50% + var(--celebration-dx)),calc(-50% + var(--celebration-dy))) scale(1.15) rotate(var(--celebration-spin));opacity:0}}
 @keyframes celebration-flutter{0%{transform:translate3d(0,-8vh,0) rotate(-15deg);opacity:0}10%{opacity:1}35%{transform:translate3d(45px,32vh,0) rotate(70deg)}68%{transform:translate3d(-35px,70vh,0) rotate(-55deg)}100%{transform:translate3d(var(--celebration-drift),108vh,0) rotate(var(--celebration-spin));opacity:0}}
 @media(prefers-reduced-motion:reduce){.celebration-piece{animation-duration:.01ms}}
+
+.welcome-screen{position:fixed;inset:0;z-index:150;display:grid;place-items:center;overflow:auto;padding:32px 16px;background:radial-gradient(circle at 18% 15%,#8c1d247d,transparent 34%),radial-gradient(circle at 82% 78%,#edc66e33,transparent 30%),#240105f7;backdrop-filter:blur(10px);transition:opacity .3s ease,visibility .3s ease}
+.welcome-screen.closed{opacity:0;visibility:hidden}
+.welcome-card{position:relative;width:min(100%,780px);overflow:hidden;padding:46px clamp(24px,6vw,56px);border:1px solid #edc66e8c;border-radius:32px;background:#52080ff2;text-align:center;box-shadow:0 30px 100px #000a}
+.welcome-card small{font-weight:900;letter-spacing:.22em;color:#edc66e}
+.welcome-card h2{margin:14px 0 0;font-size:clamp(32px,5vw,54px);line-height:1.08}
+.welcome-mark{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 20px;border:2px solid #edc66e;border-radius:50%;background:#8c1d24;font-size:20px;font-weight:900;box-shadow:0 0 0 7px #edc66e1a}
+.welcome-copy{max-width:650px;margin:24px auto 0;color:#f8e4c9;font-size:clamp(16px,2vw,19px);line-height:1.7}
+.welcome-copy p{margin:12px 0}.welcome-copy span{white-space:nowrap}
+#startReview{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px;margin-top:24px;padding:12px 30px;border:1px solid #ffe29a;border-radius:999px;background:#edc66e;color:#4b070d;font-weight:900;box-shadow:0 12px 30px #0006;transition:transform .2s ease,background .2s ease}
+#startReview:hover{transform:translateY(-2px);background:#ffe09a}
+.welcome-dragon,.welcome-lantern{position:absolute;pointer-events:none;object-fit:contain}
+.welcome-dragon{left:-40px;bottom:0;height:min(68vh,680px);opacity:.2}
+.welcome-lantern{right:16px;top:4px;height:250px;opacity:.3}
+.dropzone{cursor:pointer;outline:none;transition:border-color .2s ease,background .2s ease}
+.dropzone:focus-visible{box-shadow:0 0 0 3px #edc66e88}
+.dropzone.has-image{flex:none;min-height:0}
+.dropzone.has-image .screenshot{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain}
+@media(max-width:850px){.welcome-dragon{display:none}.welcome-lantern{height:170px;opacity:.2}}
+@media(max-width:520px){.welcome-screen{padding:18px 10px}.welcome-card{padding:34px 20px;border-radius:24px}.welcome-copy span{white-space:normal}}
+@media(prefers-reduced-motion:reduce){.welcome-screen,#startReview{transition:none}}
+@media print{.welcome-screen{display:none!important}}
