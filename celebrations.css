@@ -1,0 +1,15 @@
+.celebration-layer{position:fixed;inset:0;z-index:100;pointer-events:none;overflow:hidden}
+.celebration-piece{position:absolute;width:11px;height:17px;border-radius:2px;color:var(--celebration-color);background:var(--celebration-color);opacity:0;filter:drop-shadow(0 3px 3px #28000447);animation-duration:1.95s;animation-timing-function:cubic-bezier(.18,.72,.34,1);animation-delay:var(--celebration-delay);animation-fill-mode:both}
+.celebration-glyph{width:auto;height:auto;background:transparent;font-size:var(--celebration-size);font-family:"Segoe UI Symbol","Segoe UI Emoji",sans-serif;font-weight:800;line-height:1;text-shadow:0 2px 7px #ffecab59}
+.celebration-shape-1{width:13px;height:13px;border-radius:50%}
+.celebration-shape-2{width:18px;height:8px;border-radius:999px}
+.celebration-fall,.celebration-flutter{top:-8vh;left:var(--celebration-x)}
+.celebration-rise{bottom:-8vh;left:var(--celebration-x);animation-name:celebration-rise}
+.celebration-burst{top:50%;left:50%;animation-name:celebration-burst}
+.celebration-fall{animation-name:celebration-fall}
+.celebration-flutter{animation-name:celebration-flutter}
+@keyframes celebration-fall{0%{transform:translate3d(0,-8vh,0) rotate(0);opacity:0}8%{opacity:1}100%{transform:translate3d(var(--celebration-drift),108vh,0) rotate(var(--celebration-spin));opacity:.88}}
+@keyframes celebration-rise{0%{transform:translate3d(0,7vh,0) scale(.55) rotate(0);opacity:0}12%{opacity:1}100%{transform:translate3d(var(--celebration-drift),-112vh,0) scale(1.2) rotate(var(--celebration-spin));opacity:0}}
+@keyframes celebration-burst{0%{transform:translate(-50%,-50%) scale(.25) rotate(0);opacity:0}12%{opacity:1}72%{opacity:.95}100%{transform:translate(calc(-50% + var(--celebration-dx)),calc(-50% + var(--celebration-dy))) scale(1.15) rotate(var(--celebration-spin));opacity:0}}
+@keyframes celebration-flutter{0%{transform:translate3d(0,-8vh,0) rotate(-15deg);opacity:0}10%{opacity:1}35%{transform:translate3d(45px,32vh,0) rotate(70deg)}68%{transform:translate3d(-35px,70vh,0) rotate(-55deg)}100%{transform:translate3d(var(--celebration-drift),108vh,0) rotate(var(--celebration-spin));opacity:0}}
+@media(prefers-reduced-motion:reduce){.celebration-piece{animation-duration:.01ms}}

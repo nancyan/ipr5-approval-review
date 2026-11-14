@@ -1,4 +1,30 @@
 const symbols = ["dragon", "panda", "lantern", "fan", "pagoda"];
+const celebrationThemes = [
+  { motion: "fall", glyphs: ["", "", "✦"], colors: ["#edc66e", "#b51f2b", "#fff0bd", "#7cba82"] },
+  { motion: "rise", glyphs: ["♥", "♡"], colors: ["#ff6577", "#ffb0bb", "#fff0bd"] },
+  { motion: "flutter", glyphs: ["🏮"], colors: ["#e33b32", "#ffb83e", "#fff0bd"] },
+  { motion: "burst", glyphs: ["★", "✦", "✧"], colors: ["#ffe07a", "#fff4bd", "#df9d36"] },
+  { motion: "flutter", glyphs: ["🌸", "❀"], colors: ["#ffb0c8", "#ffd4df", "#fff0bd"] },
+  { motion: "burst", glyphs: ["✹", "✦", "•"], colors: ["#ff7c41", "#ffd15c", "#e94235"] },
+  { motion: "fall", glyphs: ["●", "◉"], colors: ["#ffd45e", "#f2a72f", "#fff0bd"] },
+  { motion: "burst", glyphs: ["✺", "✷", "✦"], colors: ["#ef4b3e", "#edc66e", "#f9f0bd"] },
+  { motion: "flutter", glyphs: ["◒", "◓"], colors: ["#f6c65d", "#d74d43", "#fff0bd"] },
+  { motion: "rise", glyphs: ["☁", "☾"], colors: ["#dceaff", "#fff2a8", "#b8cee8"] },
+  { motion: "flutter", glyphs: ["❧", "⌁"], colors: ["#70b779", "#a8d59d", "#edc66e"] },
+  { motion: "burst", glyphs: ["◆", "◇"], colors: ["#69c6a5", "#b6f0d7", "#edc66e"] },
+  { motion: "rise", glyphs: ["⌂", "▰"], colors: ["#e25749", "#edc66e", "#fff0bd"] },
+  { motion: "burst", glyphs: ["☀", "✦"], colors: ["#ffcf4c", "#ff8d35", "#fff0bd"] },
+  { motion: "fall", glyphs: ["✓", "✔"], colors: ["#7fd39a", "#d6f3dd", "#edc66e"] },
+  { motion: "flutter", glyphs: ["❯", "⌇"], colors: ["#75bfe8", "#fff0bd", "#d87d65"] },
+  { motion: "rise", glyphs: ["●", "⌖"], colors: ["#ef6155", "#edc66e", "#fff0bd"] },
+  { motion: "flutter", glyphs: ["▤", "▱"], colors: ["#e8c17a", "#f7e7b5", "#a64a3f"] },
+  { motion: "rise", glyphs: ["❁", "✿"], colors: ["#ff9ab0", "#ffd2db", "#edc66e"] },
+  { motion: "flutter", glyphs: ["◇", "◈"], colors: ["#68c5dd", "#f6cf63", "#e35b4e"] },
+  { motion: "burst", glyphs: ["◷", "◴"], colors: ["#edc66e", "#fff0bd", "#c66b52"] },
+  { motion: "burst", glyphs: ["ϟ", "✦"], colors: ["#f8dc59", "#fff5ae", "#e45d42"] },
+  { motion: "rise", glyphs: ["▥", "▦", "▰"], colors: ["#ef6b4f", "#edc66e", "#fff0bd"] },
+  { motion: "flutter", glyphs: ["💧", "≈"], colors: ["#57b8e8", "#a8ddf3", "#e8f8ff"] },
+];
 const rows = [
   ["Работа интеллектуального ассистента", "Задать в чате вопрос о выбранной территории, например о действующих градостроительных ограничениях.", "Сервис понимает запрос, учитывает выбранную территорию и формирует содержательный ответ. В ответ не попадают сведения из другого проекта или региона.", "Диалог с вопросом и полным ответом сервиса"],
   ["Градостроительный контекст территории", "Запросить сведения о градостроительном контексте выбранного проекта.", "Справка содержит границы территории, доступные сведения об объектах, функциональных зонах и социально-экономических характеристиках. Отсутствующие данные обозначены явно.", "Справка в чате или карточка территории"],
@@ -119,15 +145,20 @@ function render() {
 }
 
 function toast(message) { const el = $("toast"); el.textContent = message; el.hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => el.hidden = true, 1700); }
-function burstConfetti() {
+function burstCelebration(requirementId) {
   const box = $("confetti"); box.innerHTML = "";
-  const colors = ["#edc66e", "#b51f2b", "#fff0bd", "#d85c45", "#7cba82"];
-  for (let index = 0; index < 58; index++) {
+  const theme = celebrationThemes[(requirementId - 1) % celebrationThemes.length];
+  for (let index = 0; index < 56; index++) {
     const piece = document.createElement("i");
-    piece.style.cssText = `--x:${(index * 37) % 100}vw;--d:${(index % 9) * .035}s;--drift:${((index * 23) % 180) - 90}px;--spin:${360 + (index % 5) * 150}deg;--c:${colors[index % colors.length]}`;
+    const angle = (index / 56) * Math.PI * 2;
+    const distance = 130 + (index % 8) * 28;
+    const glyph = theme.glyphs[index % theme.glyphs.length];
+    piece.className = `celebration-piece celebration-${theme.motion} ${glyph ? "celebration-glyph" : `celebration-shape-${index % 3}`}`;
+    piece.textContent = glyph;
+    piece.style.cssText = `--celebration-x:${(index * 37) % 100}vw;--celebration-delay:${(index % 9) * .035}s;--celebration-drift:${((index * 23) % 220) - 110}px;--celebration-spin:${360 + (index % 5) * 150}deg;--celebration-color:${theme.colors[index % theme.colors.length]};--celebration-dx:${Math.cos(angle) * distance}px;--celebration-dy:${Math.sin(angle) * distance}px;--celebration-size:${16 + (index % 5) * 3}px`;
     box.append(piece);
   }
-  setTimeout(() => box.innerHTML = "", 2000);
+  setTimeout(() => box.innerHTML = "", 2300);
 }
 
 async function acceptImage(file) {
@@ -144,7 +175,7 @@ function dataUrlToBlob(dataUrl) { const [meta, data] = dataUrl.split(","); const
 $("search").oninput = event => { query = event.target.value.trim().toLowerCase(); renderList(); };
 $("filters").onclick = event => { const button = event.target.closest("button"); if (!button) return; filter = button.dataset.filter; [...$("filters").children].forEach(el => el.classList.toggle("active", el === button)); renderList(); };
 $("comment").oninput = event => setReview(activeId, { comment: event.target.value });
-$("approve").onclick = () => { setReview(activeId, { status: "approved" }); burstConfetti(); render(); toast("Требование одобрено"); };
+$("approve").onclick = () => { setReview(activeId, { status: "approved" }); burstCelebration(activeId); render(); toast("Требование одобрено"); };
 $("reject").onclick = () => { setReview(activeId, { status: "rejected" }); render(); toast("Добавлено замечание"); };
 $("previous").onclick = () => { if (activeId > 1) { activeId--; render(); } };
 $("next").onclick = () => { if (activeId < requirements.length) { activeId++; render(); } };
