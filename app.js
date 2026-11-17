@@ -275,6 +275,8 @@ function render() {
   $("nataliaComment").value = review.nataliaComment || "";
   $("approve").classList.toggle("active", review.status === "approved");
   $("reject").classList.toggle("active", review.status === "rejected");
+  $("approve").setAttribute("aria-pressed", String(review.status === "approved"));
+  $("reject").setAttribute("aria-pressed", String(review.status === "rejected"));
   $("progress").textContent = `${activeId} / ${requirements.length}`;
   $("previous").disabled = activeId === 1;
   $("next").disabled = activeId === requirements.length;
@@ -317,8 +319,17 @@ $("search").oninput = event => { query = event.target.value.trim().toLowerCase()
 $("filters").onclick = event => { const button = event.target.closest("button"); if (!button) return; filter = button.dataset.filter; [...$("filters").children].forEach(el => el.classList.toggle("active", el === button)); renderList(); };
 $("comment").oninput = event => setReview(activeId, { comment: event.target.value });
 $("nataliaComment").oninput = event => setReview(activeId, { nataliaComment: event.target.value });
-$("approve").onclick = () => { setReview(activeId, { status: "approved" }); burstCelebration(activeId); render(); toast("Требование одобрено"); };
-$("reject").onclick = () => { setReview(activeId, { status: "rejected" }); render(); toast("Добавлено замечание"); };
+$("approve").onclick = () => {
+  const isSelected = reviewFor(activeId).status === "approved";
+  setReview(activeId, { status: isSelected ? "pending" : "approved" });
+  if (!isSelected) burstCelebration(activeId);
+  render(); toast(isSelected ? "Выбор снят" : "Требование одобрено");
+};
+$("reject").onclick = () => {
+  const isSelected = reviewFor(activeId).status === "rejected";
+  setReview(activeId, { status: isSelected ? "pending" : "rejected" });
+  render(); toast(isSelected ? "Выбор снят" : "Добавлено замечание");
+};
 $("previous").onclick = () => { if (activeId > 1) { activeId--; render(); } };
 $("next").onclick = () => { if (activeId < requirements.length) { activeId++; render(); } };
 $("imageInput").onchange = event => { void acceptImage(event.target.files[0]); event.target.value = ""; };
